@@ -22,6 +22,7 @@ def _parse_cors_origins() -> list[str]:
         "http://127.0.0.1:5173",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
+        "https://metis-q1.vercel.app",
     ]
 
 class Settings(BaseModel):
