@@ -1,0 +1,12 @@
+{
+  "name": "mentis-q-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mentis-Q root workspace helper",
+  "scripts": {
+    "dev": "python run.py",
+    "start": "python run.py",
+    "build": "npm --prefix frontend run build",
+    "lint": "npm --prefix frontend run lint"
+  }
+}
