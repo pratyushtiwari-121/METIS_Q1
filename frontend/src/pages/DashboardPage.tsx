@@ -25,8 +25,9 @@ import {
 } from 'recharts';
 import { MetricCard } from '../components/common/MetricCard';
 import { AliceBobPipeline } from '../components/common/AliceBobPipeline';
-import { api } from '../services/api';
+import { api, checkBackendHealth, isBackendConfigured } from '../services/api';
 import type { DashboardSummaryResponse } from '../types';
+
 
 interface DashboardPageProps {
   onNavigate: (route: string) => void;
@@ -38,6 +39,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<string>('Just now');
   const [error, setError] = useState<string | null>(null);
+  const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
+
 
   const loadDashboardData = async (isBackground = false) => {
     try {
@@ -46,16 +49,30 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
       setData(res);
       setLastUpdated(new Date().toLocaleTimeString());
       setError(null);
+      setBackendOnline(true);
     } catch (err: any) {
-      if (!isBackground) setError(err.message || 'Failed to fetch dashboard summary.');
+      setBackendOnline(false);
+      if (!isBackground) {
+        const msg: string = err.message || 'Failed to fetch dashboard summary.';
+        // Only surface non-network errors as inline errors; network errors show the banner.
+        if (!msg.toLowerCase().includes('backend unreachable')) {
+          setError(msg);
+        } else {
+          setError(null);
+        }
+      }
     } finally {
       if (!isBackground) setLoading(false);
     }
   };
 
+
   useEffect(() => {
+    // Run health check first, then load data
+    checkBackendHealth().then(online => setBackendOnline(online));
     loadDashboardData();
   }, []);
+
 
   // Live real-time polling
   useEffect(() => {
@@ -134,11 +151,29 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
         </div>
       </div>
 
+      {/* Backend status banner */}
+      {backendOnline === false && (
+        <div className="p-3 rounded-lg bg-amber-950/60 border border-amber-500/40 text-amber-200 text-xs flex flex-col gap-1">
+          <p className="font-bold flex items-center gap-1.5">
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+            {isBackendConfigured
+              ? 'Backend Unreachable — Simulator running in offline mode'
+              : 'No Backend Configured — Running in offline/simulator mode'}
+          </p>
+          <p className="text-amber-300/80">
+            {isBackendConfigured
+              ? 'Cannot connect to the configured API server. Check that VITE_API_BASE_URL is correct and the backend is running.'
+              : 'Set VITE_API_BASE_URL in Vercel project settings (e.g. https://your-backend.onrender.com/api) and redeploy. Locally, start the FastAPI backend with python run.py.'}
+          </p>
+        </div>
+      )}
+
       {error && (
         <div className="p-3 rounded-lg bg-red-950/60 border border-red-500/40 text-red-300 text-xs">
           {error}
         </div>
       )}
+
 
       {/* Top 4 Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

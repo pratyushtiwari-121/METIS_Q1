@@ -39,16 +39,51 @@ import type {
   ConfusionMatrixResponse
 } from '../types';
 
-const API_BASE = '/api';
+/**
+ * API base URL resolution:
+ *  - Development: VITE_API_BASE_URL unset → '/api' → proxied by Vite to http://127.0.0.1:8000
+ *  - Production (Vercel): set VITE_API_BASE_URL in Vercel project env vars to your
+ *    backend URL, e.g. https://your-backend.onrender.com/api
+ *    Without it the frontend shows an offline/simulator-mode banner.
+ */
+const API_BASE: string =
+  (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, '') ?? '/api';
+
+/** True when a backend URL was explicitly configured at build time. */
+export const isBackendConfigured: boolean =
+  typeof import.meta.env.VITE_API_BASE_URL === 'string' &&
+  import.meta.env.VITE_API_BASE_URL.trim().length > 0;
+
+/** Ping /api/health. Returns true if backend is reachable. */
+export async function checkBackendHealth(): Promise<boolean> {
+  try {
+    const healthUrl = isBackendConfigured
+      ? `${API_BASE}/health`
+      : '/api/health';
+    const res = await fetch(healthUrl, { method: 'GET' });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
 
 async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers
-    },
-    ...options
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      },
+      ...options
+    });
+  } catch (networkErr: unknown) {
+    // Network-level failure (backend unreachable)
+    throw new Error(
+      'Backend unreachable — the API server is not running or not yet deployed. ' +
+      'The simulator is running in offline mode.'
+    );
+  }
 
   if (!res.ok) {
     let errorMsg = `HTTP ${res.status}: ${res.statusText}`;
@@ -56,7 +91,7 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
       const errData = await res.json();
       if (errData.detail) errorMsg = errData.detail;
     } catch {
-      // ignore
+      // ignore JSON parse failures
     }
     throw new Error(errorMsg);
   }
