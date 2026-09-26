@@ -86,7 +86,7 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({ currentRoute }) => {
           </div>
           <div className="hidden md:block text-left">
             <p className="text-xs font-semibold text-slate-200 leading-tight">Security Operator</p>
-            <p className="text-[10px] text-cyan-400/80 font-medium">Mentis-Q System</p>
+            <p className="text-[10px] text-cyan-400/80 font-medium">QDS System</p>
           </div>
         </div>
       </div>
