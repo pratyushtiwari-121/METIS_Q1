@@ -61,7 +61,11 @@ export async function checkBackendHealth(): Promise<boolean> {
       ? `${API_BASE}/health`
       : '/api/health';
     const res = await fetch(healthUrl, { method: 'GET' });
-    return res.ok;
+    const contentType = res.headers.get('content-type') || '';
+    if (!res.ok || contentType.includes('text/html')) {
+      return false;
+    }
+    return true;
   } catch {
     return false;
   }
@@ -77,11 +81,21 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
       },
       ...options
     });
-  } catch (networkErr: unknown) {
+  } catch {
     // Network-level failure (backend unreachable)
     throw new Error(
       'Backend unreachable — the API server is not running or not yet deployed. ' +
       'The simulator is running in offline mode.'
+    );
+  }
+
+  const contentType = res.headers.get('content-type') || '';
+
+  // If the server responded with HTML (e.g. Vercel SPA rewrite fallback /index.html when backend is not configured)
+  if (contentType.includes('text/html')) {
+    throw new Error(
+      'Backend unreachable — received HTML instead of JSON. ' +
+      'Please configure VITE_API_BASE_URL in your Vercel project settings.'
     );
   }
 
@@ -96,7 +110,11 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
     throw new Error(errorMsg);
   }
 
-  return res.json();
+  try {
+    return await res.json();
+  } catch {
+    throw new Error('Backend unreachable — invalid JSON response received from API server.');
+  }
 }
 
 export const api = {

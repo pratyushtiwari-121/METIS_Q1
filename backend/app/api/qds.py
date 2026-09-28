@@ -262,13 +262,23 @@ def get_thresholds_info():
     }
 
 
+@router.get("/memory/{key_id}/{verifier_id}")
 @router.get("/memory/{verifier_id}")
-def get_verifier_memory(verifier_id: str, key_id: str = Query(..., description="Key ID to inspect")):
+def get_verifier_memory(
+    verifier_id: str,
+    key_id: str | None = None,
+    key_id_query: str | None = Query(default=None, alias="key_id", description="Key ID to inspect")
+):
     """
     Inspect the status of a verifier's stored quantum memory.
+    Supports either /memory/{key_id}/{verifier_id} or /memory/{verifier_id}?key_id=...
     """
-    mem = MEMORY_REGISTRY.get_memory(key_id, verifier_id)
+    effective_key_id = key_id or key_id_query
+    if not effective_key_id:
+        raise HTTPException(status_code=400, detail="Missing key_id.")
+
+    mem = MEMORY_REGISTRY.get_memory(effective_key_id, verifier_id)
     if not mem:
-        raise HTTPException(status_code=404, detail=f"No memory found for verifier '{verifier_id}' and key '{key_id}'.")
+        raise HTTPException(status_code=404, detail=f"No memory found for verifier '{verifier_id}' and key '{effective_key_id}'.")
 
     return mem.to_dict(include_states=True)

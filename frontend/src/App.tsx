@@ -1,19 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { MainLayout } from './layouts/MainLayout';
-import { DashboardPage } from './pages/DashboardPage';
-import { SignatureGenPage } from './pages/SignatureGenPage';
-import { VerificationPage } from './pages/VerificationPage';
-import { AttackSimPage } from './pages/AttackSimPage';
-import { QuantumCircuitPage } from './pages/QuantumCircuitPage';
-import { AnalyticsPage } from './pages/AnalyticsPage';
-import { LogsPage } from './pages/LogsPage';
-import { SettingsPage } from './pages/SettingsPage';
-import { PhysicsLabPage } from './pages/PhysicsLabPage';
-import { PqcComparisonPage } from './pages/PqcComparisonPage';
-import { KeyDistributionPage } from './pages/KeyDistributionPage';
-import { ForgeryAnalysisPage } from './pages/ForgeryAnalysisPage';
-import { PerformancePage } from './pages/PerformancePage';
 import type { SignatureGenerateResponse } from './types';
+
+const DashboardPage = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
+const SignatureGenPage = lazy(() => import('./pages/SignatureGenPage').then(m => ({ default: m.SignatureGenPage })));
+const VerificationPage = lazy(() => import('./pages/VerificationPage').then(m => ({ default: m.VerificationPage })));
+const AttackSimPage = lazy(() => import('./pages/AttackSimPage').then(m => ({ default: m.AttackSimPage })));
+const QuantumCircuitPage = lazy(() => import('./pages/QuantumCircuitPage').then(m => ({ default: m.QuantumCircuitPage })));
+const KeyDistributionPage = lazy(() => import('./pages/KeyDistributionPage').then(m => ({ default: m.KeyDistributionPage })));
+const ForgeryAnalysisPage = lazy(() => import('./pages/ForgeryAnalysisPage').then(m => ({ default: m.ForgeryAnalysisPage })));
+const PerformancePage = lazy(() => import('./pages/PerformancePage').then(m => ({ default: m.PerformancePage })));
+const PhysicsLabPage = lazy(() => import('./pages/PhysicsLabPage').then(m => ({ default: m.PhysicsLabPage })));
+const PqcComparisonPage = lazy(() => import('./pages/PqcComparisonPage').then(m => ({ default: m.PqcComparisonPage })));
+const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })));
+const LogsPage = lazy(() => import('./pages/LogsPage').then(m => ({ default: m.LogsPage })));
+const SettingsPage = lazy(() => import('./pages/SettingsPage').then(m => ({ default: m.SettingsPage })));
+
+function PageLoadingFallback() {
+  return (
+    <div className="flex items-center justify-center min-h-[400px] w-full">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 rounded-full border-2 border-cyan-500/20 border-t-cyan-400 animate-spin" />
+        <span className="text-xs text-slate-400 font-mono tracking-wider">LOADING MODULE...</span>
+      </div>
+    </div>
+  );
+}
 
 export function App() {
   const [currentRoute, setCurrentRoute] = useState<string>('dashboard');
@@ -97,7 +109,9 @@ export function App() {
 
   return (
     <MainLayout currentRoute={currentRoute} onNavigate={navigate}>
-      {renderCurrentPage()}
+      <Suspense fallback={<PageLoadingFallback />}>
+        {renderCurrentPage()}
+      </Suspense>
     </MainLayout>
   );
 }

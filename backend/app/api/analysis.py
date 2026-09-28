@@ -102,7 +102,7 @@ def run_monte_carlo(req: MonteCarloSimulationRequest):
 
 @router.get("/aer-validation", response_model=AerValidationResponse)
 def validate_aer_born_rule(
-    L: int = Query(default=8, ge=2, le=16, description="Qubit count for Aer circuit"),
+    L: int = Query(default=8, ge=4, le=16, description="Qubit count for Aer circuit"),
     shots: int = Query(default=1024, ge=100, le=4096),
     seed: int = Query(default=42)
 ):

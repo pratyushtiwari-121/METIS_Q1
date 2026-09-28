@@ -292,7 +292,8 @@ def validate_born_rule_against_aer(L: int = 8, shots: int = 1024, seed: int = 42
     from app.qds.verification import verify_signature
     from app.qds.distribution import distribute_public_keys
 
-    # 1. Generate real L-qubit keypair
+    # 1. Generate real L-qubit keypair (minimum 4 qubits for QDS protocol)
+    L = max(4, int(L))
     priv, pub = generate_qds_keypair(length=L, seed=seed)
 
     # 2. Simulate Qiskit Aer projective measurement verification

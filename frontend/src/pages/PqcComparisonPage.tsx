@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Key, Cpu, Zap, AlertTriangle, CheckCircle2, Lock, ArrowRight } from 'lucide-react';
+import { Shield, Key, Cpu, Zap, Lock } from 'lucide-react';
 
 export const PqcComparisonPage: React.FC = () => {
   return (

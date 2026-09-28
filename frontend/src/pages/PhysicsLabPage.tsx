@@ -2,16 +2,12 @@ import React, { useState, useEffect } from 'react';
 import {
   Atom,
   Activity,
-  Sliders,
   Play,
-  RotateCcw,
   ShieldAlert,
-  ShieldCheck,
   CheckCircle2,
   AlertTriangle,
   Layers,
   Zap,
-  Info,
   LineChart as ChartIcon,
   Copy,
   Radio,
@@ -32,7 +28,6 @@ import {
 import { api } from '../services/api';
 import type {
   TomographyResult,
-  DensityMatrixAnalysis,
   ChannelSimulationResult,
   DecoherenceSweepPoint,
   InterceptResendResult,
@@ -76,11 +71,6 @@ export const PhysicsLabPage: React.FC = () => {
   const [eveActive, setEveActive] = useState<boolean>(true);
   const [interceptResult, setInterceptResult] = useState<InterceptResendResult | null>(null);
   const [noCloningResult, setNoCloningResult] = useState<NoCloningResult | null>(null);
-
-  // Initial load
-  useEffect(() => {
-    handleRunChsh();
-  }, []);
 
   // --- Handlers ---
   const handleRunTeleportation = async () => {
@@ -200,6 +190,12 @@ export const PhysicsLabPage: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // Initial load
+  useEffect(() => {
+    handleRunChsh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Switch tab & trigger default run
   const handleTabChange = (t: TabType) => {

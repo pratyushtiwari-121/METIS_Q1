@@ -10,15 +10,18 @@ BACKEND_DIR = ROOT_DIR / "backend"
 FRONTEND_DIR = ROOT_DIR / "frontend"
 
 def get_python_exe():
-    # First, check for a virtual environment inside the backend directory
-    backend_venv = BACKEND_DIR / "venv" / "Scripts" / "python.exe"
-    if backend_venv.exists():
-        return str(backend_venv)
-    # Fallback to the top-level .venv (common for the whole project)
-    root_venv = ROOT_DIR / ".venv" / "Scripts" / "python.exe"
-    if root_venv.exists():
-        return str(root_venv)
-    # Default to the system Python interpreter
+    subpaths = ["Scripts/python.exe", "Scripts/python", "bin/python", "bin/python.exe"]
+    candidate_dirs = [
+        ROOT_DIR / ".venv",
+        ROOT_DIR / "venv",
+        BACKEND_DIR / ".venv",
+        BACKEND_DIR / "venv",
+    ]
+    for d in candidate_dirs:
+        for sub in subpaths:
+            candidate = d / sub
+            if candidate.exists():
+                return str(candidate)
     return sys.executable
 
 def main():
