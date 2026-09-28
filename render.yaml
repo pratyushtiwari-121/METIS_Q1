@@ -12,5 +12,5 @@ services:
       - key: DEBUG
         value: "false"
       - key: DATABASE_URL
-        value: sqlite:///./database/quantum_security.db
+        value: sqlite:///./quantum_security.db
     plan: free
