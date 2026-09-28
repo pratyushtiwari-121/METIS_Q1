@@ -8,22 +8,47 @@ DB_DIR.mkdir(parents=True, exist_ok=True)
 DB_PATH = DB_DIR / "quantum_security.db"
 
 def _parse_cors_origins() -> list[str]:
-    cors_str = os.getenv("CORS_ORIGINS")
-    if cors_str:
-        import json
-        try:
-            parsed = json.loads(cors_str)
-            if isinstance(parsed, list):
-                return parsed
-        except Exception:
-            return [x.strip() for x in cors_str.split(",") if x.strip()]
-    return [
+    default_origins = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "https://metis-q1.vercel.app",
     ]
+    cors_str = os.getenv("CORS_ORIGINS")
+    if not cors_str:
+        return default_origins
+
+    cors_str = cors_str.strip()
+    if cors_str in ("*", '"*"', "'*'"):
+        return ["*"]
+
+    import json
+    try:
+        parsed = json.loads(cors_str)
+        if isinstance(parsed, list):
+            res = [str(x).strip().rstrip("/") for x in parsed if str(x).strip()]
+            for d in default_origins:
+                if d not in res and "*" not in res:
+                    res.append(d)
+            return res
+        elif isinstance(parsed, str):
+            cors_str = parsed
+    except Exception:
+        pass
+
+    clean_str = cors_str.strip("[]() ")
+    items = []
+    for item in clean_str.split(","):
+        cleaned = item.strip().strip("'\"").rstrip("/")
+        if cleaned:
+            items.append(cleaned)
+
+    for d in default_origins:
+        if d not in items and "*" not in items:
+            items.append(d)
+
+    return items or ["*"]
 
 class Settings(BaseModel):
     PROJECT_NAME: str = "Quantum Digital Signature Security"
