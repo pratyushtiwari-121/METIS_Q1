@@ -29,7 +29,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
         {/* Global Footer matching screenshots */}
         <footer className="h-12 px-6 bg-[#070b14]/90 border-t border-blue-900/20 flex items-center justify-between text-[11px] text-slate-500 font-mono shrink-0">
           <div>
-            Quantum Digital Signature Security &nbsp;|&nbsp; SIH 2025 &nbsp;|&nbsp; Mentis-Q Framework
+            Quantum Digital Signature Security &nbsp;|&nbsp; SIH 2026 &nbsp;|&nbsp; Mentis-Q Framework
           </div>
           <div className="hidden sm:block text-slate-400">
             Powered by Quantum Computing for a Safer Tomorrow

@@ -235,7 +235,7 @@ export const VerificationPage: React.FC<VerificationPageProps> = ({
   const handleDownloadReport = () => {
     const reportData = {
       title: 'Quantum Digital Signature Verification Audit Report',
-      project: 'Quantum Digital Signature Security (SIH 2025)',
+      project: 'Quantum Digital Signature Security (SIH 2026)',
       signature_id: result?.signature_id || signatureId,
       message_verified: message,
       verification_decision: result?.decision || 'LEGITIMATE',

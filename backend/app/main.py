@@ -31,7 +31,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
-    description="Quantum Digital Signature Security Educational Simulator API (SIH 2025)",
+    description="Quantum Digital Signature Security Educational Simulator API (SIH 2026)",
     lifespan=lifespan,
     docs_url="/docs",
     redoc_url="/redoc",
