@@ -27,21 +27,51 @@ function PageLoadingFallback() {
   );
 }
 
+const VALID_ROUTES = new Set([
+  'dashboard',
+  'signature-generation',
+  'verification',
+  'attack-simulation',
+  'quantum-circuit',
+  'key-distribution',
+  'forgery-analysis',
+  'performance',
+  'physics-lab',
+  'pqc-comparison',
+  'analytics',
+  'logs',
+  'settings',
+]);
+
 export function App() {
   const [currentRoute, setCurrentRoute] = useState<string>('dashboard');
   const [selectedSignature, setSelectedSignature] = useState<SignatureGenerateResponse | null>(null);
   const [selectedAttack, setSelectedAttack] = useState<any | null>(null);
 
-  // Sync with window.location.hash for direct URL bookmarking without page reload
+  // Sync with window.location.hash for direct URL bookmarking without page reload.
+  // On initial load: if there is no hash (new tab / fresh open), always land on dashboard.
+  // On hashchange: follow the hash only when it is a known valid route.
   useEffect(() => {
+    const getRouteFromHash = () =>
+      window.location.hash.replace('#/', '').replace('#', '');
+
+    // Initial load — only honour the hash if it maps to a real page.
+    const initialHash = getRouteFromHash();
+    if (initialHash && VALID_ROUTES.has(initialHash)) {
+      setCurrentRoute(initialHash);
+    } else {
+      // No hash or unrecognised hash → go to dashboard and update the URL.
+      setCurrentRoute('dashboard');
+      window.location.hash = '#/dashboard';
+    }
+
     const handleHashChange = () => {
-      const hash = window.location.hash.replace('#/', '').replace('#', '');
-      if (hash) {
+      const hash = getRouteFromHash();
+      if (hash && VALID_ROUTES.has(hash)) {
         setCurrentRoute(hash);
       }
     };
 
-    handleHashChange();
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
