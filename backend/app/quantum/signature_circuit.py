@@ -150,7 +150,7 @@ def build_and_run_signature_circuit(
     # In the ideal noise-free case this is ≈ 1.0; under noise it will drop
     calculated_fidelity = round(min(1.0, max(0.0, weighted_fidelity)), 4)
 
-    sig_date = datetime.now(timezone.utc).strftime("%Y-%m%d")
+    sig_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     sig_uuid = uuid.uuid4().hex[:6].upper()
     signature_id = f"QSIG-{sig_date}-{sig_uuid}"
     timestamp_str = datetime.now(timezone.utc).isoformat()
